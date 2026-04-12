@@ -1,172 +1,245 @@
-import type { PctColuyp'ant-dCogumns/pro-components';
-import { PageContainer, ProTablee } from 'ant-de-igndpro-coeponentsgn/pro-components';
-import {  useIntl } from '@u{el } rom '@umjs/max';
-import { App nApp, Forto IFpn Modll message,   Popconfirm,
-} from 'antd'; useRef,
-import R
+import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { FormattedMessage, useIntl } from '@umijs/max';
+import { App, Button, Form, Input, Modal, Popconfirm } from 'antd';
+import React, { useRef, useState } from 'react';
+import {
   addSharedAddressBook,
-  deleteSharedAddressBooks,eact, { useState } from 'react';
-imgetShpredAdoressBooks,
-  upratet {
+  deleteSharedAddressBooks,
+  getSharedAddressBooks,
+  updateSharedAddressBook,
 } from '@/services/rustdesk-console/addressBook';
 
-const ShareaAddrdssBook: React.FC = () => {
-  const intd = usSInhl();
-  const { massrge: msgApi } = App.useApp();
-  eonsd actAddressBook,
-  delete[createModalVisible, setCreateModalVisible] = useState(false);
-  const [edAddressBooks,
-  cpdateSharedAddresrBooketae
-} from '@/servcFrrm] = Furm.uteForm();esk-console/addressBook';
-cons [se
-const SharelectAeRowKsyoRttltSeleutsdRowKeye] = tleS(at;<Rct.Ky[]>([])
-  const { message: msgApi } = AntApp.useApp();
-    conshandleCreate = async (values: API.Addt [createModalVisP,ramseModalVisible] = useState(false);
-    try {
-      awa[raaddSharrdAddressBook valuesForm.useForm();
-   s  eeeApi.succdKs(eys, setSelectedRowKeys] = useState<React.Key[]>([]);
+const SharedAddressBook: React.FC = () => {
+  const intl = useIntl();
+  const { message: msgApi } = App.useApp();
+  const actionRef = useRef<ActionType>();
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<API.SharedAddressBook | null>(null);
+  const [createForm] = Form.useForm();
+  const [editForm] = Form.useForm();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const handleCreate = async (values: API.AddSharedAddressBookParams) => {
-    try {'ddressbookcread'
-      await addSharedAddressBook(values);
-      sgApi.success('Address book created');
-  ef  alse);
-  r   ateForm.re.resetiields();
-    } catch {
-    }  amch {
-  sdbom'gApir  r  }
-  };or(
-
-  const handleBatchDelete 'Failed to create address book'= async () => {
     try {
+      await addSharedAddressBook(values);
+      msgApi.success(
+        intl.formatMessage({
+          id: 'pages.addressBook.createSuccess',
+          defaultMessage: 'Address book created',
+        }),
+      );
+      setCreateModalVisible(false);
+      createForm.resetFields();
+      actionRef.current?.reload();
+    } catch {
+      msgApi.error(
+        intl.formatMessage({
+          id: 'pages.addressBook.createFailed',
+          defaultMessage: 'Failed to create address book',
+        }),
       );
     }
   };
-await deleteSharedAddressBooks(selectedRowKeys as string[]);
-      msgApi.cEdis('Address books deleteUp)ate;
-      setSelectedRowKeys([]);
-    } catchteess books');
 
-  const columns: ProCoslum(ns<API.SharedAddressBook>[] = [
-    {s
-      titlee: ilntl.formatMessage({e
-        id: 'pages.addressBook.name',
-        defaultMessage: 'Name',
-      }),
-      dataIndex: 'cname',
-    },ted
-    {Ro
-      title: intl.formatMessage({
-        id: 'epages.addressBook.note',
-        defaultMessages: 'Note',
-      }), as
-      dat aIndex: 'nsote',tr
-    },
-    {
-      title: intl.formatMessage({
-        id: 'pages.addressBook.peerCount',
-        defaultMessage: 'Peer Count',
-      }),ing[])
-      dataIndex: 'peer_count',
-    },;
-     msgApi.suess(
-      title: intl.formatMessage({
-        id: 'pages.common.action',
-        defaultMessage: 'A'Address bookcst deleted'ion',
-      }),
-      );valueType: 'option',
-      e tSed)cte RowKeys([]> [
-        <Popconfirm);
-   } ch{
-      msgApi.e r r    title="Are you sure to delete this address book?"
-          onCoornfirm={asy(nc () => {
-            try {
-              await delete'Failed to delete address bookSsh'aredAddressBooks([record.guid]);
-              msgApi.success('Address book deleted');
-      );      } catch {
-    }              msgApi.error('Failed to delete address book');
+  const handleEdit = async (values: API.UpdateSharedAddressBookParams) => {
+    try {
+      await updateSharedAddressBook(values);
+      msgApi.success(
+        intl.formatMessage({
+          id: 'pages.addressBook.updateSuccess',
+          defaultMessage: 'Address book updated',
+        }),
+      );
+      setEditModalVisible(false);
+      setEditingRecord(null);
+      editForm.resetFields();
+      actionRef.current?.reload();
+    } catch {
+      msgApi.error(
+        intl.formatMessage({
+          id: 'pages.addressBook.updateFailed',
+          defaultMessage: 'Failed to update address book',
+        }),
+      );
+    }
   };
 
-        oums:P oCoumns<API.>[]=
-    {
-      title: <For attedMe sa e Bd="pag t.a"link"Bize.name""smfaualM"ssage="Name" />,ger>
-      da aInd x: 'namD',
-     ,
- /  Button>
-      totlc: <Ffim,ttMssagid="pges.aB.note" defaultMesage="Note" />,
-      daaInex: 'note'  ];
-,
-  n},
-    <PageContainer>
-      <ProTable<API.SharedAddr idespages.addressBook.peerCounts defaultMessageBoPeer Counto k>,
-      dataIneexaderetn_crunt'matMessage({
-          id: 'p,
-    }dressBook.shared',
-    {
-      titl : <FormetuedltMessaeid="p'ges.comSon. crioK" eef"ultMussagAction ,
-      valueType: 'option'  request={async (params) => {
-          const ,result = await getSharedAddressBooks({
-      render: (_, record) =>       pageSize: params.pageSize || 10,
-             page: params.current || 1,
-          <);o
-           ukey="{d"
-            tat ="result.data || [],
-               etostal:" result.total || 0,
-            onC isu={() => {ccess: true,
-            tr
-                it}}etedse(rcord
-        columns={coilumdns});
-               rowSelection={{
-            selectedRowKeys,
-          onChanmge: setsSeglectedpRowK.ceys,eddess
-        }}
-         tooolBoarRender={() => [
-          <Bkuttodeleten
-              k="c
-              pe="mrimary"sa
-            onClick=p() => setCreateM.dalVieible(true)}
-          >ror t delee s addresbook
-            {intl.formatMessage({
-            }
-  se           defaultMessage: 'Create Address Book',}
-          >
-            <Bu to)ty="link" siz="small" dager>
-                 selectedRowKeys.length > 0 && (Delete
-        o   </Buoon>
-          </Poetcef"rm>
-              title="Are you sure to delete selected address books?"
-       atchDelete}
-         >
-  ];er>
+  const handleDelete = async (guids: string[]) => {
+    try {
+      await deleteSharedAddressBooks(guids);
+      msgApi.success(
+        intl.formatMessage({
+          id: 'pages.addressBook.deleteSuccess',
+          defaultMessage: 'Address book(s) deleted',
+        }),
+      );
+      setSelectedRowKeys([]);
+      actionRef.current?.reload();
+    } catch {
+      msgApi.error(
+        intl.formatMessage({
+          id: 'pages.addressBook.deleteFailed',
+          defaultMessage: 'Failed to delete address book(s)',
+        }),
+      );
+    }
+  };
 
-    tu n  ssage({
-      ageC  ta ne >d: 'pages.common.batchDelete',
-      <ProTab d<)PI.Sha}AB>n>
-       PhoanerTil
-    /><FomMag ="pa.aB.shared"fauMssiaa="Shae.eABadb
-               name="name"
-         c<nopRufactoR
-          <Ftym guidnnote" label="Note">
+  const columns: ProColumns<API.SharedAddressBook>[] = [
+    {
+      title: <FormattedMessage id="pages.addressBook.name" defaultMessage="Name" />,
+      dataIndex: 'name',
+    },
+    {
+      title: <FormattedMessage id="pages.addressBook.note" defaultMessage="Note" />,
+      dataIndex: 'note',
+      ellipsis: true,
+    },
+    {
+      title: <FormattedMessage id="pages.addressBook.peerCount" defaultMessage="Peer Count" />,
+      dataIndex: 'peer_count',
+      width: 100,
+    },
+    {
+      title: <FormattedMessage id="pages.common.action" defaultMessage="Action" />,
+      valueType: 'option',
+      width: 180,
+      render: (_, record) => (
+        <>
+          <Button
+            key="edit"
+            type="link"
+            size="small"
+            onClick={() => {
+              setEditingRecord(record);
+              editForm.setFieldsValue(record);
+              setEditModalVisible(true);
+            }}
+          >
+            <FormattedMessage id="pages.common.edit" defaultMessage="Edit" />
+          </Button>
+          <Popconfirm
+            key="delete"
+            title={
+              <FormattedMessage
+                id="pages.addressBook.deleteConfirm"
+                defaultMessage="Are you sure to delete this address book?"
+              />
+            }
+            onConfirm={() => handleDelete([record.guid])}
+          >
+            <Button type="link" size="small" danger>
+              <FormattedMessage id="pages.common.delete" defaultMessage="Delete" />
+            </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <PageContainer>
+      <ProTable<API.SharedAddressBook>
+        headerTitle={
+          <FormattedMessage id="pages.addressBook.shared" defaultMessage="Shared Address Books" />
+        }
+        actionRef={actionRef}
+        rowKey="guid"
+        request={async (params) => {
+          const result = await getSharedAddressBooks({
+            pageSize: params.pageSize || 10,
+            page: params.current || 1,
+          });
+          return {
+            data: result.data || [],
+            total: result.total || 0,
+            success: true,
+          };
+        }}
+        columns={columns}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: setSelectedRowKeys,
+        }}
+        toolBarRender={() => [
+          <Button key="create" type="primary" onClick={() => setCreateModalVisible(true)}>
+            <FormattedMessage id="pages.addressBook.create" defaultMessage="Create Address Book" />
+          </Button>,
+          selectedRowKeys.length > 0 && (
+            <Popconfirm
+              key="batchDelete"
+              title={
+                <FormattedMessage
+                  id="pages.addressBook.batchDeleteConfirm"
+                  defaultMessage="Are you sure to delete selected address books?"
+                />
+              }
+              onConfirm={() => handleDelete(selectedRowKeys as string[])}
+            >
+              <Button danger>
+                <FormattedMessage id="pages.common.batchDelete" defaultMessage="Batch Delete" />
+              </Button>
+            </Popconfirm>
+          ),
+        ]}
+      />
+
+      <Modal
+        title={
+          <FormattedMessage id="pages.addressBook.create" defaultMessage="Create Address Book" />
+        }
+        open={createModalVisible}
+        onCancel={() => setCreateModalVisible(false)}
+        onOk={() => createForm.submit()}
+      >
+        <Form form={createForm} onFinish={handleCreate}>
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: 'Please enter name' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="note" label="Note">
             <Input.TextArea />
           </Form.Item>
           <Form.Item name="password" label="Password">
-            <Input.Password />r
-        </rm>
-};
-export default SharedAddressBook;
-ess: trrRende<Fted=""=""/>
-              title={  <FormatedMessage
-                  d="pages.addressBook.batchDeleeConfirm"
-                  defautMessag
-                />
-              }() => (selectedRowKeys as string[])nge      mattedMessage id="pages.comonbachDlete" defaultMessage="Batch Delete" />
-              </Button    Popcnfi
-          ),
-        ]}craeCreaecraeCreaecraecraeC}rd /</F.Im><FrImnm="paword"lb="Password"><Input.Password/>Frm.ItemF<Modal
-          <Fted="di"="Edi" />di {
-         Edise);
-          etEditingRcord(null;
-        }didiEdit}>
-          <Fom.Itm nme="guid" hidden>
+            <Input.Password />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={
+          <FormattedMessage id="pages.addressBook.edit" defaultMessage="Edit Address Book" />
+        }
+        open={editModalVisible}
+        onCancel={() => {
+          setEditModalVisible(false);
+          setEditingRecord(null);
+        }}
+        onOk={() => editForm.submit()}
+      >
+        <Form form={editForm} onFinish={handleEdit}>
+          <Form.Item name="guid" hidden>
             <Input />
-          </Form.Im
+          </Form.Item>
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: 'Please enter name' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="note" label="Note">
+            <Input.TextArea />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </PageContainer>
+  );
+};
+
+export default SharedAddressBook;
