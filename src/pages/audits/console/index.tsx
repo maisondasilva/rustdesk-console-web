@@ -1,51 +1,44 @@
-import type { ProColumns } from '@ant-design/pro-components';
+import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
-import { useIntl } from '@umijs/max';
-import React from 'react';
+import { FormattedMessage, useIntl } from '@umijs/max';
+import React, { useRef } from 'react';
 import { getConsoleAudits } from '@/services/rustdesk-console/audit';
 
 const ConsoleAudit: React.FC = () => {
   const intl = useIntl();
+  const actionRef = useRef<ActionType>();
 
   const columns: ProColumns<API.ConsoleAuditItem>[] = [
     {
-      title: intl.formatMessage({
-        id: 'pages.audits.user',
-        defaultMessage: 'User',
-      }),
+      title: <FormattedMessage id="pages.audits.user" defaultMessage="User" />,
       dataIndex: 'user',
+      width: 150,
     },
     {
-      title: intl.formatMessage({
-        id: 'pages.audits.action',
-        defaultMessage: 'Action',
-      }),
+      title: <FormattedMessage id="pages.audits.action" defaultMessage="Action" />,
       dataIndex: 'action',
+      width: 150,
     },
     {
-      title: intl.formatMessage({
-        id: 'pages.audits.detail',
-        defaultMessage: 'Detail',
-      }),
+      title: <FormattedMessage id="pages.audits.detail" defaultMessage="Detail" />,
       dataIndex: 'detail',
+      ellipsis: true,
     },
     {
-      title: intl.formatMessage({
-        id: 'pages.audits.time',
-        defaultMessage: 'Time',
-      }),
+      title: <FormattedMessage id="pages.audits.time" defaultMessage="Time" />,
       dataIndex: 'time',
       valueType: 'dateTime',
+      width: 180,
     },
   ];
 
   return (
     <PageContainer>
       <ProTable<API.ConsoleAuditItem>
-        headerTitle={intl.formatMessage({
-          id: 'pages.audits.console',
-          defaultMessage: 'Console Audits',
-        })}
+        headerTitle={
+          <FormattedMessage id="pages.audits.console" defaultMessage="Console Audits" />
+        }
+        actionRef={actionRef}
         rowKey="id"
         request={async (params) => {
           const result = await getConsoleAudits({
@@ -60,6 +53,11 @@ const ConsoleAudit: React.FC = () => {
         }}
         columns={columns}
         search={false}
+        pagination={{
+          defaultPageSize: 10,
+          showSizeChanger: true,
+          showQuickJumper: true,
+        }}
       />
     </PageContainer>
   );
