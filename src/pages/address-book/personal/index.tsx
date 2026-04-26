@@ -1,7 +1,7 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Alert, App, Button, ColorPicker, Form, Input, Modal, Popconfirm, Select, Space, Tag, Table, Tooltip, Typography } from 'antd';
+import { Alert, App, Button, ColorPicker, Form, Input, Modal, Popconfirm, Select, Space, Tag, Table, Typography } from 'antd';
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined, PlusOutlined, SelectOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -49,6 +49,7 @@ const PersonalAddressBook: React.FC = () => {
   const [tags, setTags] = useState<API.TagItem[]>([]);
   const [pendingColorUpdates, setPendingColorUpdates] = useState<Record<string, number>>({});
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [hoveredColorDot, setHoveredColorDot] = useState<string | null>(null);
   
   
   useEffect(() => {
@@ -460,11 +461,12 @@ const PersonalAddressBook: React.FC = () => {
           Untagged
         </Tag>
         {(tags as API.TagItem[]).map((tag: API.TagItem) => {
-          const tagColor = argbToHex(tag.color);
+          const displayColor = argbToHex(pendingColorUpdates[tag.name] ?? tag.color);
+          const isSelected = selectedTag === tag.name;
           return (
             <Tag
               key={tag.name}
-              color={selectedTag === tag.name ? tagColor : undefined}
+              color={isSelected ? displayColor : undefined}
               style={{ cursor: 'pointer', padding: '2px 8px', paddingLeft: 0 }}
               closable
               closeIcon={
@@ -485,7 +487,11 @@ const PersonalAddressBook: React.FC = () => {
                 >
                   <span
                     onClick={(e) => e.stopPropagation()}
-                    style={{ marginLeft: 4, cursor: 'pointer' }}
+                    style={{
+                      marginLeft: 4,
+                      cursor: 'pointer',
+                      color: isSelected ? '#fff' : undefined,
+                    }}
                   >
                     ×
                   </span>
@@ -495,40 +501,43 @@ const PersonalAddressBook: React.FC = () => {
                 e.preventDefault();
               }}
               onClick={() => {
-                setSelectedTag(selectedTag === tag.name ? null : tag.name);
+                setSelectedTag(isSelected ? null : tag.name);
                 actionRef.current?.reload();
               }}
             >
               <span style={{ paddingLeft: 6, display: 'inline-flex', alignItems: 'center' }}>
-                <Tooltip
-                  trigger="hover"
-                  color="transparent"
-                  styles={{ inner: { padding: 0 } }}
-                  title={
-                    <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 6px 16px 0 rgba(0,0,0,.08), 0 3px 6px -4px rgba(0,0,0,.12), 0 9px 28px 8px rgba(0,0,0,.05)' }}>
-                      <ColorPicker
-                        disabledAlpha
-                        value={tagColor}
-                        onChangeComplete={(colorValue) => {
-                          const rgb = colorValue.toRgb();
-                          const newArgb = 0xFF000000 + (rgb.r << 16) + (rgb.g << 8) + rgb.b;
-                          handleUpdateTagColor(tag.name, newArgb);
-                        }}
-                      />
-                    </div>
-                  }
+                <ColorPicker
+                  disabledAlpha
+                  value={displayColor}
+                  open={hoveredColorDot === tag.name}
+                  onOpenChange={(open) => {
+                    if (!open) {
+                      setHoveredColorDot(null);
+                    }
+                  }}
+                  onChange={(colorValue) => {
+                    const rgb = colorValue.toRgb();
+                    const newArgb = 0xFF000000 + (rgb.r << 16) + (rgb.g << 8) + rgb.b;
+                    setPendingColorUpdates(prev => ({ ...prev, [tag.name]: newArgb }));
+                  }}
+                  onChangeComplete={(colorValue) => {
+                    const rgb = colorValue.toRgb();
+                    const newArgb = 0xFF000000 + (rgb.r << 16) + (rgb.g << 8) + rgb.b;
+                    handleUpdateTagColor(tag.name, newArgb);
+                  }}
                 >
                   <span
+                    onMouseEnter={() => setHoveredColorDot(tag.name)}
                     style={{
                       display: 'inline-block',
                       width: 8,
                       height: 8,
                       borderRadius: '50%',
-                      backgroundColor: tagColor,
+                      backgroundColor: isSelected ? '#fff' : displayColor,
                       cursor: 'pointer',
                     }}
                   />
-                </Tooltip>
+                </ColorPicker>
                 <span style={{ display: 'inline-block', width: 8 }} />
               </span>
               {tag.name}
