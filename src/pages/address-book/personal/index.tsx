@@ -51,6 +51,7 @@ const PersonalAddressBook: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagMode, setTagMode] = useState<'union' | 'intersection'>('union');
   const [hoveredColorDot, setHoveredColorDot] = useState<string | null>(null);
+  const colorPickerCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   
   useEffect(() => {
@@ -528,9 +529,37 @@ const PersonalAddressBook: React.FC = () => {
                     const newArgb = 0xFF000000 + (rgb.r << 16) + (rgb.g << 8) + rgb.b;
                     handleUpdateTagColor(tag.name, newArgb);
                   }}
+                  panelRender={(panel) => (
+                    <div
+                      onMouseEnter={() => {
+                        if (colorPickerCloseTimerRef.current) {
+                          clearTimeout(colorPickerCloseTimerRef.current);
+                          colorPickerCloseTimerRef.current = null;
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        colorPickerCloseTimerRef.current = setTimeout(() => {
+                          setHoveredColorDot(null);
+                        }, 100);
+                      }}
+                    >
+                      {panel}
+                    </div>
+                  )}
                 >
                   <span
-                    onMouseEnter={() => setHoveredColorDot(tag.name)}
+                    onMouseEnter={() => {
+                      if (colorPickerCloseTimerRef.current) {
+                        clearTimeout(colorPickerCloseTimerRef.current);
+                        colorPickerCloseTimerRef.current = null;
+                      }
+                      setHoveredColorDot(tag.name);
+                    }}
+                    onMouseLeave={() => {
+                      colorPickerCloseTimerRef.current = setTimeout(() => {
+                        setHoveredColorDot(null);
+                      }, 100);
+                    }}
                     style={{
                       display: 'inline-block',
                       width: 8,
