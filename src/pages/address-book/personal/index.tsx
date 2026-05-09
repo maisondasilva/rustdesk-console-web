@@ -4,6 +4,8 @@ import { FormattedMessage, useIntl } from '@umijs/max';
 import { Alert, App, Button, ColorPicker, Form, Input, Modal, Popconfirm, Radio, Select, Space, Tag, Table, Tooltip, Typography } from 'antd';
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined, PlusOutlined, SelectOutlined, WindowsFilled, AndroidFilled, AppleFilled, QqCircleFilled } from '@ant-design/icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import Settings from '../../../../config/defaultSettings';
 import {
   getPersonalAddressBook,
   getPeers,
@@ -44,7 +46,13 @@ const getOSIcon = (os: string): React.ReactNode => {
   return null;
 };
 
-const PersonalAddressBook: React.FC = () => {
+export interface PersonalAddressBookProps {
+  guid?: string;
+  title?: string;
+  onBack?: () => void;
+}
+
+const PersonalAddressBook: React.FC<PersonalAddressBookProps> = ({ guid: propGuid, title: propTitle, onBack }) => {
   const intl = useIntl();
   const { message: msgApi } = App.useApp();
   const actionRef = useRef<ActionType>(null);
@@ -67,8 +75,8 @@ const PersonalAddressBook: React.FC = () => {
   const [editPeerError, setEditPeerError] = useState('');
   const [editingPeer, setEditingPeer] = useState<API.PeerItem | null>(null);
 
-  const [abGuid, setAbGuid] = useState<string>();
-  const [abLoading, setAbLoading] = useState(true);
+  const [abGuid, setAbGuid] = useState<string | undefined>(propGuid);
+  const [abLoading, setAbLoading] = useState(!propGuid);
   const [tags, setTags] = useState<API.TagItem[]>([]);
   const [pendingColorUpdates, setPendingColorUpdates] = useState<Record<string, number>>({});
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -78,6 +86,11 @@ const PersonalAddressBook: React.FC = () => {
   
   
   useEffect(() => {
+    if (propGuid) {
+      setAbGuid(propGuid);
+      setAbLoading(false);
+      return;
+    }
     const fetchAbGuid = async () => {
       setAbLoading(true);
       try {
@@ -90,8 +103,8 @@ const PersonalAddressBook: React.FC = () => {
       }
     };
     fetchAbGuid();
-  }, []);
-  
+  }, [propGuid]);
+
   const fetchTags = useCallback(async () => {
     if (!abGuid) return;
     try {
@@ -542,7 +555,19 @@ const PersonalAddressBook: React.FC = () => {
   ];
 
   return (
-    <PageContainer>
+    <>
+      {propTitle && (
+        <Helmet>
+          <title>
+            {propTitle}
+            {Settings.title && ` - ${Settings.title}`}
+          </title>
+        </Helmet>
+      )}
+      <PageContainer
+        title={propTitle}
+        onBack={onBack}
+      >
       {/* Tags Area */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
         <span style={{ fontWeight: 500, marginRight: 4 }}>
@@ -698,7 +723,7 @@ const PersonalAddressBook: React.FC = () => {
 
       <ProTable<API.PeerItem>
         headerTitle={
-          <FormattedMessage id="pages.addressBook.personal" defaultMessage="Personal Address Book" />
+          propTitle || <FormattedMessage id="pages.addressBook.personal" defaultMessage="Personal Address Book" />
         }
         actionRef={actionRef}
         rowKey="id"
@@ -910,6 +935,7 @@ const PersonalAddressBook: React.FC = () => {
         />
       </Modal>
     </PageContainer>
+    </>
   );
 };
 
